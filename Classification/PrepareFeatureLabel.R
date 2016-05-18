@@ -123,7 +123,7 @@ AssembleData <- function(FeatureVec.train_scale,Label.train,FeatureVec.test_scal
   return(list(TrainData.sub=TrainData.sub,TestData.sub=TestData.sub,TrainData=TrainData,TestData=TestData))
 }
 
-BoxCoxTrans <- function(x, lambda=1, offset=0){
+BoxCoxTransform <- function(x, lambda=1, offset=0){
   if(lambda==0){
     return(log(x+offset))
   }else{

@@ -275,6 +275,16 @@ Classification <- function(TrainData,TestData,classifier,kfold=0,PCA=FALSE,keepP
          },
          
          # (multi-layer) Neural Network
+         # **************************************** #
+         # 'neuralnet' has a bug that it doesn't save the current network once reached the stepmax value,
+         # causing this error later in the 'compute' code 
+         # Avoid this reset by commenting lines 65 & 66 of the calculate.neuralnet function
+         # fixInNamespace("calculate.neuralnet", pos="package:neuralnet")
+         # [...]
+         # #if (reached.threshold > threshold) 
+         # #    return(result = list(output.vector = NULL, weights = NULL))
+         # [...]
+         # *************************************** #
          mNN={
            library(neuralnet)
            formula.nn <- as.formula(paste("Label ~", paste(colnames(subset(TrainData,select=-Label)), collapse = " + ")))
@@ -285,9 +295,8 @@ Classification <- function(TrainData,TestData,classifier,kfold=0,PCA=FALSE,keepP
              for (i in 1:length(hiddenArch)){
                for (j in 1:kfold){
                  testIdx <- cvFold[[j]] 
-                 Model.cv <- neuralnet(formula.nn,data=TrainData[!testIdx,],hidden=hiddenArch[[i]],linear.output=FALSE,
-                                       err.fct="ce",stepmax = 1e+04,...) 
-                 
+                 Model.cv <- neuralnet(formula.nn,data=TrainData[-testIdx,],hidden=hiddenArch[[i]],linear.output=FALSE,
+                                      err.fct="ce",...) 
                  pred <- compute(Model.cv, subset(TrainData[testIdx,],select=-Label))$net.result
                  CVtest.err[i,j] <- sum(TrainData$Label[testIdx]!=ifelse(pred>=0.5, 1, 0))/length(testIdx)
                }
@@ -300,7 +309,7 @@ Classification <- function(TrainData,TestData,classifier,kfold=0,PCA=FALSE,keepP
            }
            
            Model <- neuralnet(formula.nn,data=TrainData,hidden=hidden.optimal,linear.output=FALSE,
-                              err.fct="ce",stepmax = 1e+04,...)
+                              err.fct="ce",...)
            Pred.test <- compute(Model, subset(TestData,select=-Label))$net.result
          },
          
