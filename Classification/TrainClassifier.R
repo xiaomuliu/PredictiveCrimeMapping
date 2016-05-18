@@ -1,7 +1,7 @@
 source("Classification.R")
 
-# classifiers <- c("NB","LDA","LogReg","Lasso","RF","Adaboost","SVM","GAM","sNN","mNN","DBN","SAE")
-classifiers <- c("GAM")
+# Classifier names must be one of ("NB","LDA","LogReg","Lasso","RF","Adaboost","SVM","GAM","sNN","mNN","DBN","SAE")
+classifiers <- c("LDA","LogReg")
 if ("GAM" %in% classifiers){
   formula.part1 <- paste0("Label~",paste(VarName.call,sep="",collapse="+"))
   formula.part2 <- paste("s(",c(VarName.space,VarName.census,VarName.weather,VarName.STcrime,VarName.LTcrime),")",sep="",collapse="+")
@@ -34,14 +34,10 @@ funArgs <- list(NB="kfold=0,PCA=FALSE,keepPC=NULL",
                 SAE=paste0("hiddenArch=c(100,50),",spec)
 )
 
-AUCary.cls <- matrix(0,nrow=length(classifiers),ncol=length(groupSeq.test))
-TPRary.cls <- array(0,dim=c(length(classifiers),length(groupSeq.test),length(percentArea)))
+PredMat.test <- matrix(0,nrow=nrow(TestData.sub),ncol=length(classifiers))
 
 for (m in 1:length(classifiers)){
   t <- system.time( eval( parse(text=paste0("classObj <- Classification(TrainData.sub,TestData.sub,classifiers[m],",funArgs[[classifiers[m]]],")")) ) )
   print(t)
-  Pred.test <- classObj$PredTest
-  rocObj <- ROCeval(CrimeData,groupSeq.test,RegGrd,percentArea,Pred.test,r=r,isInCity=isInCity)
-  AUCary.cls[m, ] <- rocObj$AUC
-  TPRary.cls[m, , ] <- rocObj$TPR
+  PredMat.test[,m] <- classObj$PredTest
 }

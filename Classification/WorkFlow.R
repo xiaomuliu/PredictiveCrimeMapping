@@ -19,7 +19,9 @@ percentArea <- seq(0,1,length.out=21)
 
 source("EvalHotspot.R")
 
-source("TrainAndEvalClassifier.R")
+source("TrainClassifier.R")
+
+source("EvalClassifier.R")
 
 source("PlotEval.R")
 

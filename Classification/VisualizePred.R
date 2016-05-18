@@ -2,7 +2,9 @@
 jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
 
 exampleIdx <- 10 # which example to show
-Pred.test.sub <- Pred.test[((exampleIdx-1)*nrow(RegGrd)+1):(exampleIdx*nrow(RegGrd))]
+modelIdx <- 1 # which model to show
+
+Pred.test.sub <- PredMat.test[((exampleIdx-1)*nrow(RegGrd)+1):(exampleIdx*nrow(RegGrd)),modelIdx]
 Pred.df_inCity <- data.frame(X_COORD=RegGrd$X_COORD,Y_COORD=RegGrd$Y_COORD,ProbPred=Pred.test.sub)
 Pred.raster_inCity <- rasterize(Pred.df_inCity[,c("X_COORD","Y_COORD")], r, Pred.df_inCity$ProbPred, fun=mean)
 
